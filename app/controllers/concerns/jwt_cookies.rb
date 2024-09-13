@@ -14,7 +14,15 @@ module JwtCookies
     )
   end
 
-  def remove_jwt_cookies(response)
-    response.delete_cookie(:jwt)
+  def remove_jwt_cookie
+    response.delete_cookie(
+      :jwt,
+      {
+        path: "/",
+        same_site: :lax,
+        secure: Rails.env.production?,
+        httponly: true
+      }
+    )
   end
 end

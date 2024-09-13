@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useCallback } from 'react';
 
 export interface AuthContext {
-  token: string | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   authFetch: (url: string, options?: RequestInit) => Promise<Response>;
@@ -15,11 +14,10 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
-
   const login = async (credentials: { email: string; password: string }) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -34,44 +32,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!response.ok) {
       throw new Error('Login failed');
     }
-
-    const authToken = response.headers.get('Authorization')?.split(' ')[1];
-    if (!authToken) {
-      throw new Error('No token received');
-    }
-
-    setToken(authToken);
-    localStorage.setItem('token', authToken);
   };
 
   const logout = async () => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     });
 
     if (!response.ok) {
       throw new Error('Logout failed');
     }
-
-    setToken(null);
-    localStorage.removeItem('token');
   };
 
   const authFetch = useCallback(
     (url: string, options: RequestInit = {}) => {
-      const headers = new Headers(options.headers);
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-
-      return fetch(url, { ...options, headers });
+      return fetch(url, {
+        ...options,
+        credentials: 'include',
+      });
     },
-    [token],
+    [],
   );
 
   const contextValue: AuthContext = {
-    token,
     login,
     logout,
     authFetch,
