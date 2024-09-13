@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_13_170445) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_13_193335) do
+  create_table "groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.integer "privacy_setting", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["privacy_setting"], name: "index_groups_on_privacy_setting"
+  end
+
   create_table "jwt_denylists", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "jti", null: false
     t.datetime "expired_at", null: false
