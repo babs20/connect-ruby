@@ -2,6 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   include RackSessionFix
   include JwtCookies
   respond_to :json
+  skip_authorization_check only: [ :create, :destroy ]
 
   def create
     super do |user|

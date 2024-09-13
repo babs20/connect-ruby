@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_13_195241) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_13_231537) do
   create_table "groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -51,6 +51,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_13_195241) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "user_groups", "groups"
+  add_foreign_key "user_groups", "groups", on_delete: :cascade
   add_foreign_key "user_groups", "users"
 end
