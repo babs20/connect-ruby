@@ -1,10 +1,17 @@
 import type { ReactNode } from 'react';
 import React, { createContext, useContext, useCallback } from 'react';
 
+interface User {
+  id: string;
+  email: string;
+}
+
 export interface AuthContext {
   login: (credentials: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   authFetch: (url: string, options?: RequestInit) => Promise<Response>;
+  isLoggedIn: boolean;
+  user: User | null;
 }
 
 const AuthContext = createContext<AuthContext | null>(null);
@@ -14,6 +21,9 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [user, setUser] = React.useState<User | null>(null);
+
   const login = async (credentials: { email: string; password: string }) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
       method: 'POST',
@@ -32,6 +42,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!response.ok) {
       throw new Error('Login failed');
     }
+
+    setIsLoggedIn(true);
+    const userData = await response.json();
+    setUser(userData);
   };
 
   const logout = async () => {
@@ -43,6 +57,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!response.ok) {
       throw new Error('Logout failed');
     }
+
+    setIsLoggedIn(false);
+    setUser(null);
   };
 
   const authFetch = useCallback(
@@ -59,6 +76,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     authFetch,
+    isLoggedIn,
+    user,
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

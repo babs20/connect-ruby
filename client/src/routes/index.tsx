@@ -22,7 +22,7 @@ function HomeComponent() {
     <div className='p-2'>
       <h3>Welcome Home!</h3>
 
-      {auth.token ? (
+      {auth.isLoggedIn ? (
         <div>
           <p>You are logged in!</p>
           <button onClick={() => void handleLogout()} className='bg-red-500 text-white p-2 flex rounded'>
