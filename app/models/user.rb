@@ -4,7 +4,10 @@ class User < ApplicationRecord
   devise :database_authenticatable,
          :registerable,
          :jwt_authenticatable,
-          jwt_revocation_strategy: JwtDenylist
+         jwt_revocation_strategy: JwtDenylist
+
+  has_many :user_groups
+  has_many :groups, through: :user_groups
 
   def generate_jwt
     JWT.encode(
