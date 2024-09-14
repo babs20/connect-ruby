@@ -4,6 +4,7 @@ class Ability
   def initialize(user)
     user ||= User.new
     can :read, :all
+    can :read, :current_user
 
     # can only create if user is logged in
     if user.persisted?

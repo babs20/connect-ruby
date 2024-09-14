@@ -1,5 +1,5 @@
+import React, { createContext, useContext, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import React, { createContext, useContext, useCallback } from 'react';
 
 interface User {
   id: string;
@@ -7,9 +7,13 @@ interface User {
 }
 
 export interface AuthContext {
+  // Helpers
   login: (credentials: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   authFetch: (url: string, options?: RequestInit) => Promise<Response>;
+
+  // State
+  isLoading: boolean;
   isLoggedIn: boolean;
   user: User | null;
 }
@@ -21,6 +25,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [isLoading, setIsLoading] = React.useState(true);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [user, setUser] = React.useState<User | null>(null);
 
@@ -62,20 +67,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
-  const authFetch = useCallback(
-    (url: string, options: RequestInit = {}) => {
-      return fetch(url, {
-        ...options,
-        credentials: 'include',
-      });
-    },
-    [],
-  );
+  const authFetch = useCallback((url: string, options: RequestInit = {}) => {
+    return fetch(url, {
+      ...options,
+      credentials: 'include',
+    });
+  }, []);
+
+  const getCurrentUser = async () => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/current_user`, {
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      const userData = await response.json();
+      setUser(userData);
+      setIsLoggedIn(true);
+    } else {
+      setUser(null);
+      setIsLoggedIn(false);
+    }
+  };
+
+  useEffect(() => {
+    void getCurrentUser().finally(() => setIsLoading(false));
+  }, []);
 
   const contextValue: AuthContext = {
     login,
     logout,
     authFetch,
+    isLoading,
     isLoggedIn,
     user,
   };

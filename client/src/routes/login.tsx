@@ -10,7 +10,7 @@ export const Route = createFileRoute('/login')({
     redirect: z.string().optional().catch(''),
   }),
   beforeLoad: ({ context, search }) => {
-    if (context.auth.token) {
+    if (context.auth.isLoggedIn) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({ to: search.redirect || homepage });
     }

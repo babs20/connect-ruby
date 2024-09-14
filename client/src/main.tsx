@@ -11,8 +11,8 @@ const router = createRouter({
   defaultPendingComponent: () => <div className={'p-2 text-2xl'}>Loading...</div>,
   defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
   context: {
-    auth: undefined!, // We'll inject this when we render
     queryClient,
+    auth: undefined!, // We'll inject this when we render
   },
   defaultPreload: 'intent',
   // Since we're using React Query, we don't want loader calls to ever be stale
@@ -34,7 +34,7 @@ function InnerApp() {
 
 function App() {
   return (
-    <AuthProvider>
+    <AuthProvider queryClient={queryClient}>
       <InnerApp />
     </AuthProvider>
   );

@@ -22,18 +22,22 @@ function HomeComponent() {
     <div className='p-2'>
       <h3>Welcome Home!</h3>
 
-      {auth.isLoggedIn ? (
-        <div>
-          <p>You are logged in!</p>
-          <button onClick={() => void handleLogout()} className='bg-red-500 text-white p-2 flex rounded'>
-            Logout
-          </button>
-        </div>
-      ) : (
-        <div>
-          <p>You are not logged in.</p>
-          <Link to='/login'>Login</Link>
-        </div>
+      {!auth.isLoading && (
+        <>
+          {auth.user ? (
+            <div>
+              <p>You are logged in!</p>
+              <button onClick={() => void handleLogout()} className='bg-red-500 text-white p-2 flex rounded'>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div>
+              <p>You are not logged in.</p>
+              <Link to='/login'>Login</Link>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
