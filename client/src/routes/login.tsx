@@ -11,6 +11,8 @@ export const Route = createFileRoute('/login')({
   }),
   beforeLoad: ({ context, search }) => {
     if (context.auth.isLoggedIn) {
+      console.log('User is already logged in, redirecting to homepage', context.auth.isLoggedIn);
+
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({ to: search.redirect || homepage });
     }
@@ -44,15 +46,9 @@ function LoginComponent() {
   const isLoggingIn = isLoading || isSubmitting;
 
   return (
-    <div className='p-2 grid gap-2 place-items-center'>
-      <h3 className='text-xl'>Login page</h3>
-      {search.redirect ? (
-        <p className='text-red-500'>You need to login to access this page.</p>
-      ) : (
-        <p>Login to see all the cool content in here.</p>
-      )}
-      <form className='mt-4 max-w-lg' onSubmit={(e) => void onFormSubmit(e)}>
-        <fieldset disabled={isLoggingIn} className='w-full grid gap-2'>
+    <div className='grid gap-2 p-2 place-items-center'>
+      <form className='max-w-lg mt-4' onSubmit={(e) => void onFormSubmit(e)}>
+        <fieldset disabled={isLoggingIn} className='grid w-full gap-2'>
           <div className='grid gap-2 items-center min-w-[300px]'>
             <label htmlFor='email-input' className='text-sm font-medium'>
               Email
@@ -62,7 +58,7 @@ function LoginComponent() {
               name='email'
               placeholder='Enter your email'
               type='email'
-              className='border rounded-md p-2 w-full text-black'
+              className='w-full p-2 text-black border rounded-md'
               required
             />
           </div>
@@ -76,13 +72,13 @@ function LoginComponent() {
               name='password'
               placeholder='Enter your password'
               type='password'
-              className='border rounded-md p-2 w-full text-black'
+              className='w-full p-2 text-black border rounded-md'
               required
             />
           </div>
           <button
             type='submit'
-            className='bg-blue-500 text-white py-2 px-4 rounded-md w-full disabled:bg-gray-300 disabled:text-gray-500'
+            className='w-full px-4 py-2 text-white bg-blue-500 rounded-md disabled:bg-gray-300 disabled:text-gray-500'
           >
             {isLoggingIn ? 'Loading...' : 'Login'}
           </button>

@@ -7,11 +7,11 @@ class GroupsController < ApplicationController
       group.privacy_setting == "public" || group.users.include?(current_user)
     end
 
-    render json: @groups
+    render json: api_response(GroupSerializer, @groups, "Groups retrieved successfully"), status: :ok
   end
 
   def show
-    render json: @group
+    render json: api_response(GroupSerializer, @group, "Group retrieved successfully"), status: :ok
   end
 
   def create
@@ -22,18 +22,18 @@ class GroupsController < ApplicationController
     @group.user_groups.create!(user: current_user, role: :admin)
   end
 
-  render json: @group, status: :created, location: @group
+  render json: api_response(GroupSerializer, @group, "Group created successfully"), status: :created, location: @group
 
   rescue ActiveRecord::RecordInvalid => e
     @group.errors.merge!(e.record.errors) if e.record != @group
-    render json: @group.errors, status: :unprocessable_entity
+    render json: api_response_no_data(@group.errors.full_messages.join(", ")), status: :unprocessable_entity
   end
 
   def update
     if @group.update(group_params)
-      render json: @group
+      render json: api_response(GroupSerializer, @group, "Group updated successfully"), status: :ok
     else
-      render json: @group.errors, status: :unprocessable_entity
+      render json: api_response_no_data(@group.errors.full_messages.join(", ")), status: :unprocessable_entity
     end
   end
 

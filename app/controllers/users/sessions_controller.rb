@@ -1,6 +1,7 @@
 class Users::SessionsController < Devise::SessionsController
   include RackSessionFix
   include JwtCookies
+  include ApiResponse
   respond_to :json
   skip_authorization_check only: [ :create, :destroy ]
 
@@ -17,9 +18,9 @@ class Users::SessionsController < Devise::SessionsController
 
   def respond_with(resource, _opts = {})
     if resource.persisted?
-      render json: { message: "Logged in successfully.", user: UserSerializer.new(resource).serializable_hash[:data][:attributes] }, status: :ok
+      render json: api_response(UserSerializer, resource, "Logged in successfully"), status: :ok
     else
-      render json: { message: "Login failed." }, status: :unauthorized
+      render json: api_response_no_data("Login failed"), status: :unauthorized
     end
   end
 

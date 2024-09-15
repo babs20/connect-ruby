@@ -1,13 +1,14 @@
 class ApplicationController < ActionController::API
   include CanCan::ControllerAdditions
   include ActionController::Cookies
+  include ApiResponse
   include JwtCookies
 
   before_action :set_current_user
   check_authorization unless: :devise_controller?
 
   rescue_from CanCan::AccessDenied do |exception|
-    render json: { error: exception.message }, status: :forbidden
+    render json: { message: exception.message }, status: :forbidden
   end
 
   private

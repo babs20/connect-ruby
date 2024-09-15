@@ -34,7 +34,7 @@ function InnerApp() {
 
 function App() {
   return (
-    <AuthProvider queryClient={queryClient}>
+    <AuthProvider>
       <InnerApp />
     </AuthProvider>
   );

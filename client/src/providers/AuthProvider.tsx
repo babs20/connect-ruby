@@ -1,10 +1,7 @@
+import type { TUserSchema } from '@/api/schemas/shared/base';
+import { GetCurrentUserResponseSchema, PostLoginRequestSchema } from '@/api/schemas/users';
 import React, { createContext, useContext, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-}
 
 export interface AuthContext {
   // Helpers
@@ -15,7 +12,7 @@ export interface AuthContext {
   // State
   isLoading: boolean;
   isLoggedIn: boolean;
-  user: User | null;
+  user: TUserSchema | null;
 }
 
 const AuthContext = createContext<AuthContext | null>(null);
@@ -27,7 +24,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [user, setUser] = React.useState<User | null>(null);
+  const [user, setUser] = React.useState<TUserSchema | null>(null);
 
   const login = async (credentials: { email: string; password: string }) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
@@ -48,9 +45,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw new Error('Login failed');
     }
 
+    const body = await response.json();
+    const parsedBody = PostLoginRequestSchema.safeParse(body);
+
+    if (!parsedBody.success || parsedBody.data.data === null) {
+      console.error('Failed to parse login response', parsedBody.error);
+      setIsLoggedIn(false);
+      return;
+    }
+
+    setUser(parsedBody.data.data.attributes);
     setIsLoggedIn(true);
-    const userData = await response.json();
-    setUser(userData);
   };
 
   const logout = async () => {
@@ -79,14 +84,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       credentials: 'include',
     });
 
-    if (response.ok) {
-      const userData = await response.json();
-      setUser(userData);
-      setIsLoggedIn(true);
-    } else {
+    if (!response.ok) {
       setUser(null);
       setIsLoggedIn(false);
+      return;
     }
+
+    const body = await response.json();
+    const parsedUser = GetCurrentUserResponseSchema.safeParse(body);
+
+    if (!parsedUser.success || parsedUser.data.data === null) {
+      console.error('Failed to parse user data', parsedUser.error);
+      setUser(null);
+      setIsLoggedIn(false);
+      return;
+    }
+
+    setUser(parsedUser.data.data.attributes);
+    setIsLoggedIn(true);
   };
 
   useEffect(() => {
