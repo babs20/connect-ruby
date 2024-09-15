@@ -1,3 +1,4 @@
+import { CreateGroupDialog } from '@/components/dialogs/CreateGroup';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
 import { buttonVariants as btnCva } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,8 +15,11 @@ function GroupsIndex() {
   const { data: query } = useSuspenseQuery(groupsQueryOptions);
 
   return (
-    <div>
-      <h1 className='text-4xl font-bold leading-snug text-white'>GROUPS</h1>
+    <div className='mt-8'>
+      <div className='flex items-center justify-between'>
+        <h1 className='text-4xl font-bold leading-snug text-white'>GROUPS</h1>
+        <CreateGroupDialog />
+      </div>
       <ul className='grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         {query.data?.map(({ id, attributes }) => (
           <Card key={id}>

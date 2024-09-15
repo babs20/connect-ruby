@@ -13,7 +13,7 @@ export default function Header() {
   const auth = useAuth();
 
   return (
-    <header className='sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+    <header className='sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container flex items-center h-14 max-w-screen-2xl'>
         <div className='flex mr-4'>
           <Link to='/' className='flex items-center mr-4 space-x-2 lg:mr-6'>

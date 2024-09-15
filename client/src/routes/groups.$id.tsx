@@ -1,4 +1,7 @@
+import { DeleteGroupDialog } from '@/components/dialogs/DeleteGroup';
+import { EditGroupDialog } from '@/components/dialogs/EditGroup';
 import { groupQueryOptions } from '@/utils/groupQueryOptions';
+import { humanize } from '@/utils/utils';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
@@ -19,9 +22,13 @@ function Page() {
     <div>
       <h1 className='text-4xl font-bold leading-snug text-white'>{query.data.attributes.name}</h1>
       <p>{query.data.attributes.description}</p>
-      <p>Privacy Setting: {query.data.attributes.privacySetting}</p>
+      <p>Privacy Setting: {humanize(query.data.attributes.privacySetting)}</p>
       <p>Created At: {query.data.attributes.createdAt}</p>
       <p>Updated At: {query.data.attributes.updatedAt}</p>
+      <div className='flex items-center gap-2'>
+        <EditGroupDialog group={query.data} />
+        <DeleteGroupDialog group={query.data} />
+      </div>
     </div>
   );
 }

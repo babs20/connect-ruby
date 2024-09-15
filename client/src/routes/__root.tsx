@@ -19,7 +19,7 @@ function RootComponent() {
     <>
       <Header />
       <main>
-        <div className='border-b pb-6'>
+        <div className='pb-6'>
           <div className='container max-w-screen-2xl'>
             <Outlet />
           </div>
