@@ -42,9 +42,11 @@ group :development, :test do
   gem "faker"
 end
 
+# Authentication and authorization
 gem "devise"
 gem "devise-jwt"
 gem "jsonapi-serializer"
-
-# Add Cancancan for authorization
 gem "cancancan"
+
+# Pagination
+gem "kaminari"

@@ -2,9 +2,9 @@ import { CreateGroupDialog } from '@/components/dialogs/CreateGroup';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
 import { buttonVariants as btnCva } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { groupsQueryOptions } from '@/utils/groupQueryOptions';
+import { myGroupsQueryOptions } from '@/utils/groupQueryOptions';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, redirect } from '@tanstack/react-router';
 import { zodSearchValidator } from '@tanstack/router-zod-adapter';
 import { z } from 'zod';
 
@@ -12,18 +12,24 @@ const groupsSearchSchema = z.object({
   page: z.number().default(1),
 });
 
-export const Route = createFileRoute('/groups/')({
+export const Route = createFileRoute('/groups/my')({
   validateSearch: zodSearchValidator(groupsSearchSchema),
   loaderDeps: ({ search }) => search,
   loader: ({ context: { queryClient }, deps }) => {
-    void queryClient.ensureQueryData(groupsQueryOptions(deps));
+    void queryClient.ensureQueryData(myGroupsQueryOptions(deps));
   },
   component: GroupsIndex,
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isLoggedIn) {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
+      throw redirect({ to: '/groups' });
+    }
+  },
 });
 
 function GroupsIndex() {
   const search = Route.useSearch();
-  const { data: query } = useSuspenseQuery(groupsQueryOptions(search));
+  const { data: query } = useSuspenseQuery(myGroupsQueryOptions(search));
 
   return (
     <div className='mt-8'>

@@ -4,13 +4,17 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { Link } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 import { buttonVariants } from '@/components/ui/button';
 import Logo from './svgs/Logo';
 import { useAuth } from '@/providers/AuthProvider';
+import { cn } from '@/utils/utils';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Header() {
   const auth = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   return (
     <header className='sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
@@ -22,8 +26,14 @@ export default function Header() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link to='/groups' className={navigationMenuTriggerStyle()}>
+                <Link to='/groups' className={cn(navigationMenuTriggerStyle())}>
                   Groups
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link to='/groups/my' className={cn(navigationMenuTriggerStyle())}>
+                  My Groups
                 </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -43,6 +53,9 @@ export default function Header() {
                   className={buttonVariants({ variant: 'default', size: 'sm' })}
                   onClick={() => {
                     void auth.logout();
+                    void router.invalidate();
+                    void router.navigate({ to: '/groups' });
+                    void queryClient.invalidateQueries();
                   }}
                 >
                   Logout

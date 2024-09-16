@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const body = await response.json();
     const parsedBody = PostLoginRequestSchema.safeParse(body);
 
-    if (!parsedBody.success || parsedBody.data.data === null) {
+    if (!parsedBody.success || !parsedBody.data.data) {
       console.error('Failed to parse login response', parsedBody.error);
       setIsLoggedIn(false);
       return;
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const body = await response.json();
     const parsedUser = GetCurrentUserResponseSchema.safeParse(body);
 
-    if (!parsedUser.success || parsedUser.data.data === null) {
+    if (!parsedUser.success || !parsedUser.data.data) {
       console.error('Failed to parse user data', parsedUser.error);
       setUser(null);
       setIsLoggedIn(false);

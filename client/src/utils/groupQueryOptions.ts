@@ -10,29 +10,63 @@ export const formGroupSchema = z.object({
 });
 export type TFormGroupSchema = z.infer<typeof formGroupSchema>;
 
-export const groupsQueryOptions = queryOptions({
-  queryKey: ['groups'],
-  staleTime: 1000 * 60 * 5, // 5 minutes
-  queryFn: async (): Promise<TGetGroupsResponseSchema> => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/groups`, {
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
-    const parsedRes = GetGroupsResponseSchema.safeParse(data);
-
-    if (!parsedRes.success) {
-      console.error('Validation error:', parsedRes.error);
-      return { message: 'Validation error', data: null };
-    }
-
-    return parsedRes.data;
-  },
+export const groupsSearchSchema = z.object({
+  page: z.number().catch(1),
 });
+export type GroupsSearchParams = z.infer<typeof groupsSearchSchema>;
+
+export const groupsQueryOptions = (searchParams: GroupsSearchParams) => {
+  return queryOptions({
+    queryKey: ['groups', searchParams],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: async (): Promise<TGetGroupsResponseSchema> => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const queryString = new URLSearchParams(searchParams as any).toString();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/groups?${queryString}`, {
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+      const parsedRes = GetGroupsResponseSchema.safeParse(data);
+
+      if (!parsedRes.success) {
+        throw new Error('Validation error');
+      }
+
+      if (!response.ok) {
+        throw new Error(parsedRes.data.message);
+      }
+
+      return parsedRes.data;
+    },
+  });
+};
+
+export const myGroupsQueryOptions = (searchParams: GroupsSearchParams) => {
+  return queryOptions({
+    queryKey: ['groups', 'my', searchParams],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: async (): Promise<TGetGroupsResponseSchema> => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const queryString = new URLSearchParams(searchParams as any).toString();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/groups/my?${queryString}`, {
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+      const parsedRes = GetGroupsResponseSchema.safeParse(data);
+      if (!parsedRes.success) {
+        throw new Error('Validation error');
+      }
+
+      if (!response.ok) {
+        throw new Error(parsedRes.data.message);
+      }
+
+      return parsedRes.data;
+    },
+  });
+};
 
 export const groupQueryOptions = (groupId: string) =>
   queryOptions({
@@ -87,21 +121,9 @@ export const useCreateGroup = () => {
 
       return parsedRes.data;
     },
-    onSuccess(data) {
-      queryClient.setQueryData<TGetGroupsResponseSchema>(groupsQueryOptions.queryKey, (oldData) => {
-        if (oldData && data.data && oldData.data) {
-          return {
-            ...oldData,
-            data: [...oldData.data, data.data],
-          };
-        } else if (data.data) {
-          return {
-            message: data.message,
-            data: [data.data],
-          };
-        } else {
-          return oldData;
-        }
+    onSuccess() {
+      void queryClient.invalidateQueries({
+        queryKey: ['groups'],
       });
     },
   });
@@ -135,27 +157,9 @@ export const useEditGroup = (groupId: string) => {
 
       return parsedRes.data;
     },
-    onSuccess(data) {
-      queryClient.setQueryData<TGetGroupResponseSchema>(['groups', groupId], (oldData) => {
-        if (oldData && data.data) {
-          return {
-            ...oldData,
-            data: { ...oldData.data, ...data.data },
-          };
-        } else {
-          return oldData;
-        }
-      });
-
-      queryClient.setQueryData<TGetGroupsResponseSchema>(groupsQueryOptions.queryKey, (oldData) => {
-        if (oldData && data.data && oldData.data) {
-          return {
-            ...oldData,
-            data: oldData.data.map((group) => (group.id === data.data?.id ? data.data : group)),
-          };
-        } else {
-          return oldData;
-        }
+    onSuccess() {
+      void queryClient.invalidateQueries({
+        queryKey: ['groups'],
       });
     },
   });
@@ -177,20 +181,9 @@ export const useDeleteGroup = () => {
 
       return { id: groupId };
     },
-    onSuccess(data, variables) {
-      queryClient.setQueryData<TGetGroupsResponseSchema>(groupsQueryOptions.queryKey, (oldData) => {
-        if (oldData && oldData.data) {
-          return {
-            ...oldData,
-            data: oldData.data.filter((group) => group.id !== data.id),
-          };
-        } else {
-          return oldData;
-        }
-      });
-
-      queryClient.removeQueries({
-        queryKey: ['groups', variables],
+    onSuccess() {
+      void queryClient.invalidateQueries({
+        queryKey: ['groups'],
       });
     },
   });

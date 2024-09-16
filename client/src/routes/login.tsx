@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createFileRoute, redirect, useRouter, useRouterState } from '@tanstack/react-router';
 import { z } from 'zod';
 import { useAuth } from '../providers/AuthProvider';
+import { useQueryClient } from '@tanstack/react-query';
 
 const homepage = '/' as const;
 
@@ -21,10 +22,10 @@ export const Route = createFileRoute('/login')({
 });
 
 function LoginComponent() {
+  const queryClient = useQueryClient();
   const auth = useAuth();
   const router = useRouter();
   const isLoading = useRouterState({ select: (s) => s.isLoading });
-  const navigate = Route.useNavigate();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const search = Route.useSearch();
@@ -34,8 +35,8 @@ function LoginComponent() {
       evt.preventDefault();
       setIsSubmitting(true);
       await auth.login({ email: evt.currentTarget.email.value, password: evt.currentTarget.password.value });
-      await router.invalidate();
-      await navigate({ to: search.redirect || homepage });
+      await queryClient.invalidateQueries();
+      await router.navigate({ to: search.redirect || '/groups' });
     } catch (error) {
       console.error('Error logging in: ', error);
     } finally {

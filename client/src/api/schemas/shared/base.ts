@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const ApiResponseSchema = <TData>(dataSchema: z.ZodType<TData>) =>
   z.object({
     message: z.string(),
-    data: z.union([dataSchema, z.null()]),
+    data: z.union([dataSchema, z.null()]).optional(),
   });
 
 export const ApiBaseDataSchema = <TAttribute, TType extends string>(

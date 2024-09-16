@@ -3,11 +3,27 @@ class GroupsController < ApplicationController
   before_action :set_group, only: %i[ show update destroy ]
 
   def index
-    @groups = Group.all.select do |group|
-      group.privacy_setting == "public" || group.users.include?(current_user)
-    end
+    groups = Group.where(privacy_setting: "public").or(Group.where(id: current_user&.group_ids || -1))
+    groups = groups.where(filter_params) if params[:filter].present?
+    groups = groups.order(sort_params) if params[:sort].present?
 
-    render json: api_response(GroupSerializer, @groups, "Groups retrieved successfully"), status: :ok
+    # Pagination
+    page = params[:page] || 1
+    per_page = [ params[:per_page].to_i, 100 ].min.nonzero? || 25
+    groups = groups.page(page).per(per_page)
+
+    render json: api_response_paginated(GroupSerializer, groups, "Groups retrieved successfully"), status: :ok
+  end
+
+  def my
+    groups = current_user&.groups || Group.none
+
+    # Pagination
+    page = params[:page] || 1
+    per_page = [ params[:per_page].to_i, 100 ].min.nonzero? || 25
+    groups = groups.page(page).per(per_page)
+
+    render json: api_response_paginated(GroupSerializer, groups, "My groups retrieved successfully"), status: :ok
   end
 
   def show
@@ -47,8 +63,27 @@ class GroupsController < ApplicationController
       @group = Group.find(params[:id])
     end
 
-  # Only allow a list of trusted parameters through.
-  def group_params
-    params.require(:group).permit(:name, :description, :privacy_setting)
-  end
+    # Only allow a list of trusted parameters through.
+    def group_params
+      params.require(:group).permit(:name, :description, :privacy_setting)
+    end
+
+    def filter_params
+      params.require(:filter).permit(:privacy_setting)
+    end
+
+    def sort_params
+      sort = { created_at: :desc }
+
+      if params[:sort].present?
+        sort = {}
+
+        params[:sort].split(",").each do |s|
+          key, order = s.split(":")
+          sort[key.to_sym] = order.to_sym || :asc
+        end
+      end
+
+      sort
+    end
 end
