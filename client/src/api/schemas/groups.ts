@@ -8,6 +8,15 @@ const GroupSchema = z.object({
   privacySetting: z.enum(['public', 'private', 'invitation_only']),
   createdAt: z.string(),
   updatedAt: z.string(),
+  users: z
+    .array(
+      z.object({
+        id: z.number(),
+        email: z.string(),
+        role: z.enum(['guest', 'member', 'moderator', 'admin', 'owner']),
+      }),
+    )
+    .optional(),
 });
 export type TGroupSchema = z.infer<typeof GroupSchema>;
 

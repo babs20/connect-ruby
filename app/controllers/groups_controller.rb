@@ -27,7 +27,7 @@ class GroupsController < ApplicationController
   end
 
   def show
-    render json: api_response(GroupSerializer, @group, "Group retrieved successfully"), status: :ok
+    render json: api_response(GroupSerializer, @group, "Group retrieved successfully", { params: { include_users: true } }), status: :ok
   end
 
   def create

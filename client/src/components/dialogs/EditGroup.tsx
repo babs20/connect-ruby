@@ -48,9 +48,8 @@ function EditGroupDialog({ group }: EditGroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='secondary'>
-          <EditSvg className='mr-2' />
-          Edit Group
+        <Button variant='secondary' size='icon'>
+          <EditSvg className='w-5 h-5' />
         </Button>
       </DialogTrigger>
       <DialogContent>

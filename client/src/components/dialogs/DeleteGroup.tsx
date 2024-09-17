@@ -48,9 +48,8 @@ function DeleteGroupDialog({ group }: EditGroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='destructive'>
-          <TrashSvg className='mr-2' />
-          Delete Group
+        <Button variant='destructive' size='icon'>
+          <TrashSvg />
         </Button>
       </DialogTrigger>
       <DialogContent>

@@ -68,7 +68,7 @@ users.each do |user|
   end
 end
 
-# Ensure each group has at least one admin or owner
+# Ensure each group has only one admin or owner
 puts "Ensuring each group has an admin or owner..."
 groups.each do |group|
   unless group.user_groups.any? { |ug| [ 4 ].include?(ug.role) }
@@ -85,6 +85,11 @@ groups.each do |group|
         joined_at: Faker::Time.between(from: 1.year.ago, to: Time.now)
       )
     end
+  end
+
+  # Now make sure there is only one owner
+  if group.user_groups.where(role: 4).count > 1
+    group.user_groups.where(role: 4).limit(group.user_groups.where(role: 4).count - 1).destroy_all
   end
 end
 

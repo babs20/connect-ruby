@@ -30,6 +30,7 @@ export const groupsQueryOptions = (searchParams: GroupsSearchParams) => {
       const parsedRes = GetGroupsResponseSchema.safeParse(data);
 
       if (!parsedRes.success) {
+        console.error(parsedRes.error);
         throw new Error('Validation error');
       }
 
@@ -56,6 +57,7 @@ export const myGroupsQueryOptions = (searchParams: GroupsSearchParams) => {
       const data = await response.json();
       const parsedRes = GetGroupsResponseSchema.safeParse(data);
       if (!parsedRes.success) {
+        console.error(parsedRes.error);
         throw new Error('Validation error');
       }
 
@@ -72,21 +74,21 @@ export const groupQueryOptions = (groupId: string) =>
   queryOptions({
     queryKey: ['groups', groupId],
     staleTime: 1000 * 60 * 5, // 5 minutes
+
     queryFn: async (): Promise<TGetGroupResponseSchema> => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/groups/${groupId}`, {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
       const data = await response.json();
       const parsedRes = GetGroupResponseSchema.safeParse(data);
-
       if (!parsedRes.success) {
         console.error('Validation error:', parsedRes.error);
         return { message: 'Validation error', data: null };
+      }
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
 
       return parsedRes.data;
@@ -107,16 +109,16 @@ export const useCreateGroup = () => {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
       const data = await response.json();
       const parsedRes = GetGroupResponseSchema.safeParse(data);
 
       if (!parsedRes.success) {
         console.error('Validation error:', parsedRes.error);
-        return { message: 'Validation error', data: null };
+        throw new Error('Validation error');
+      }
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
 
       return parsedRes.data;
@@ -152,14 +154,14 @@ export const useEditGroup = (groupId: string) => {
 
       if (!parsedRes.success) {
         console.error('Validation error:', parsedRes.error);
-        return { message: 'Validation error', data: null };
+        throw new Error('Validation error');
       }
 
       return parsedRes.data;
     },
     onSuccess() {
       void queryClient.invalidateQueries({
-        queryKey: ['groups'],
+        queryKey: ['groups', groupId],
       });
     },
   });

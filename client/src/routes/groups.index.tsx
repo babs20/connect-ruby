@@ -26,7 +26,7 @@ function GroupsIndex() {
   const { data: query } = useSuspenseQuery(groupsQueryOptions(search));
 
   return (
-    <div className='mt-8'>
+    <>
       <div className='flex items-center justify-between'>
         <h1 className='text-4xl font-bold leading-snug text-white'>GROUPS</h1>
         <CreateGroupDialog />
@@ -61,6 +61,6 @@ function GroupsIndex() {
           </Card>
         ))}
       </ul>
-    </div>
+    </>
   );
 }

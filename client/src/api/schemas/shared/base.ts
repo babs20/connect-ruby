@@ -19,7 +19,5 @@ export const ApiBaseDataSchema = <TAttribute, TType extends string>(
 export const UserSchema = z.object({
   id: z.number(),
   email: z.string().email(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
 });
 export type TUserSchema = z.infer<typeof UserSchema>;

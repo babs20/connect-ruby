@@ -11,7 +11,7 @@ class Ability
       can :create, Group
       can :my, Group
       can [ :update, :destroy ], Group do |group|
-        group.user_groups.exists?(user: user, role: :admin)
+        group.user_groups.exists?(user: user, role: [ :owner, :admin ])
       end
     end
   end

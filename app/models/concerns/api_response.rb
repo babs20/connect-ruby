@@ -2,17 +2,17 @@
 module ApiResponse
   extend ActiveSupport::Concern
 
-  def api_response(serializer, resource, message)
+  def api_response(serializer, resource, message, serializer_options = {})
     {
       message: message,
-      data: serializer.new(resource).serializable_hash[:data]
+      data: serializer.new(resource, serializer_options).serializable_hash[:data]
     }
   end
 
-  def api_response_paginated(serializer, resource, message)
+  def api_response_paginated(serializer, resource, message, serializer_options = {})
     {
       message: message,
-      data: serializer.new(resource).serializable_hash[:data],
+      data: serializer.new(resource, serializer_options).serializable_hash[:data],
       meta: pagination_meta(resource)
     }
   end
